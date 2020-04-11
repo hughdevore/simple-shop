@@ -1,0 +1,36 @@
+{
+  "name": "digital-art-manager",
+  "version": "1.0.0",
+  "description": "As a software engineer, you've been tasked to create a CRUD API for managing digital art",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --legacy-watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node migrate.js",
+    "migrate:create": "migrate create --migrations-dir='./src/migrations'"
+  },
+  "author": "Hughie Devore",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "pg": "^7.18.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hughdevore/digital-art-manager.git"
+  },
+  "keywords": [
+    "React",
+    "Node",
+    "REST"
+  ],
+  "bugs": {
+    "url": "https://github.com/hughdevore/digital-art-manager/issues"
+  },
+  "homepage": "https://github.com/hughdevore/digital-art-manager#readme"
+}
