@@ -1,7 +1,41 @@
-# Rackner Digital Art Project
+# Simple Shop
 
-## Intro
-As a software engineer, you've been tasked to create a CRUD API for managing digital art
+## Challenge
+Senior Engineer Code Challenge
+
+### Assignment
+We’d like you to build a simple shopping cart experience that includes a small set
+of features and functions on both desktop and mobile. We are not concerned with completeness
+but rather code quality and thoughtfulness in the code.
+
+Please reach out with any clarifying questions!
+
+### Technical Requirements
+- Your Shopping cart should have a frontend, backend, and database (We want to see
+data being persisted, and not stored in local storage or a JSON file)
+- Your entire application should be dockerized
+- Include Unit tests
+- Include a detailed README that includes instructions on how to launch your dockerized
+application.
+  - There should not be any global dependency requirements other than Docker.
+  - Please test it out on a clean clone of your repo with all the relevant Docker
+containers deleted; we will not debug the app if it doesn't work out of the box
+
+### Feature Requirements
+- The user should:
+  - see an empty cart message on their first interaction with the page
+  - be able to add items to their cart
+  - See an updated list of cart items upon adding items to their cart
+  - be able to change the quantity of each cart item in their cart
+  - see a cart summary or totals block on the page
+
+### Considerations
+- This is your chance to show us your skills and exploit your strengths. If you are a
+back-end focused programmer, you should focus more of your time there and
+vice-versa.
+Note:
+- If invited for an onsite interview, be prepared to demo your application and talk through
+your design decisions.
 
 ## Tech Stack
 - React
@@ -49,54 +83,19 @@ _The Express app is running at http://192.168.99.100:3100_
 _The React SPA is running at http://192.168.99.100:3000_
 
 
-## DB Migrations
-While docker-compose up is running, in a new terminal run `docker-compose run app bash` to start a bash shell inside the app container. From there, you can run the following migration commands:
-- npm run migrate up will run the migrations.
-- npm run migrate down will roll back the migrations.
-- npm run migrate:create <migration-name> will create a new migration file in src/migrations folder.
+## Database Access
+To access the app database:
+`psql postgres://user:pass@localhost:35432/db`
 
-## Challenge
-1. Create a CRUD RESTful API for the Art, using Express and PostgreSQL
-Define an Art table for Postgres. An `Art` model should contain: name of the art, artist, description, width, height, and date created
+The test database can be accessed via:
+`psql postgres://user:pass@localhost:35432/db_test`
 
-Define HTTP endpoints for art, to allow:
-- Create: create a new piece of art
-  input: name, artist, description, width, height, and date create
-  output: the newly created art object
-- Read: read a piece of art
-  input: id
-  output: art object
-- Update: update a piece of art's name or description
-  input: id, name, description
-  output: updated art object
-- Delete: delete a piece of art
-  input: id
+## Tests
+In order to access the test database during your testing you need to run these commands from within the docker container. This can be done by running: 
 
-2. Create a React front end to consume the API
+`docker-compose run server bash`
 
-(Style/Design does not matter at all, feel free to use minimal or no CSS)
-
-This front end should consume each API event you created
-- Create: create a button which sends random data for each required field, or use a form for user inputed data, 
-  whichever is easier/quicker for you
-- Read: display a list of all current pieces of art (anyway you want)
-- Update: allow the user to update an item in the list's title or description
-- Delete: allow the user to delete an item in the list
-
-_Note: While the Express app and React app are already bootstrapped for you, and exposed via port 3000 and 3100, remember you still need to connect the React app to the Express app. Feel free to use "proxy", 
-
-3. Write tests using a Javascript test framework of your choice to validate the API events
-Write tests for each CRUD event you've written, that show they work as expected.
-
-## Additional Questions
-1. Each digital art file is a PNG, how would you save and serve this file from the API
-to the client? How could you use AWS to do this? How would you modify the API/Data Model
-you've created? (Answer in <500 words)
-
-2. Write a description of a system design you would use for this app. How would you deploy this app to
-production? Feel free to dig into anything you have experience with. (Answer in <500 words)
-
-
+Both the server and frontend directories can be tested by running `yarn test` within either directory.
 
 ## Appendix: Docker
 Docker will allow you to create the nodejs app, database, and front end in one line,

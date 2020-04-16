@@ -1,21 +1,7 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const port = process.env.PORT;
+const server = require('./server.js');
 
-app.use(cors());
+const port = process.env.PORT || 3100;
 
-app.get('/api', (req, res) => {
-  console.log(`Server received this: ${req}`)
-  res.send({ data: 'Welcome to the API' });
-})
-
-app.get('*', (req, res) => {
-  console.log(`Server received this: ${req}`)
-  res.send('PICK A ROUTE');
-})
-
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });

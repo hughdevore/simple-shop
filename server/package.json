@@ -5,20 +5,27 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --legacy-watch index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand --detectOpenHandles",
+    "test:watch": "jest --watch --runInBand --detectOpenHandles",
     "migrate": "node migrate.js",
     "migrate:create": "migrate create --migrations-dir='./src/migrations'"
   },
   "author": "Hughie Devore",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.2"
+    "jest": "^25.3.0",
+    "nodemon": "^2.0.2",
+    "supertest": "^4.0.2",
+    "xo": "^0.24.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "pg": "^7.18.2"
+    "pg": "^8.0.2"
   },
   "repository": {
     "type": "git",
@@ -29,6 +36,10 @@
     "Node",
     "REST"
   ],
+  "xo": {
+    "prettier": true,
+    "space": true
+  },
   "bugs": {
     "url": "https://github.com/hughdevore/digital-art-manager/issues"
   },

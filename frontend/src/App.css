@@ -1,38 +1,61 @@
-.App {
-  text-align: center;
-}
+@import '~antd/dist/antd.css';
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.formInput {
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.art-manager-header {
+  height: 6em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.art-manager-header h1 {
+  color: white;
+  font-size: 2em;
+  padding-top: .4em;
+  font-weight: 700;
+  border-bottom: black 1px solid;
+}
+
+.art-manager-list-container {
+  padding:1.5em 2em;
+  background-color: white;
+  height: 82vh;
+}
+
+.ant-list-item-action li {
+  cursor: default;
+}
+
+.ant-modal-content {
+  box-shadow: 0 0 5px rgb(171, 177, 186);
+}
+
+.ant-drawer-header {
+  height: 6em;
+  padding: 2em;
+}
+
+.ant-drawer-title {
+  font-size: 1.5em;
+}
+
+.update-art-form-header {
+  border-bottom: 2px solid #001529;
+  width: 33%;
+  font-size: 1.25em;
+}
+
+.app-footer {
+  background-color: #001529;
+  text-align: right;
+  padding-top: 1.25em;
+}
+
+.github-logo {
+  height: 2.5em;
+  image-rendering: -moz-crisp-edges;         /* Firefox */
+  image-rendering:   -o-crisp-edges;         /* Opera */
+  image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
 }
