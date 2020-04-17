@@ -32,11 +32,11 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.getArtList();
+    this.getProductList();
   }
 
-  getArtList = async () => {
-    const response = await axios.get('http://localhost:3100/art');
+  getProductList = async () => {
+    const response = await axios.get('http://localhost:3100/products');
     const body = response.data;
     if (response.status !== 200) {
       throw Error(body.message) 
