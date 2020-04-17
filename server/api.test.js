@@ -11,73 +11,79 @@ const pool = new Pool({
   port: 5432
 });
 
-const artPiece = {
-  name: 'The Sea Triumph of Charles II',
-  artist: 'Antonio Verrio',
+const product = {
+  name: 'Everyday Print Set',
   description:
-    "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-  width: 565,
-  height: 500,
-  date: '2020-04-14T00:00:00.000Z'
+    "With their high-quality look and feel, these photo prints are designed to honor the everyday. Choose from matte, double-thick matte, and satin paper options.",
+  price: 9.01,
+  image_url: "https://media.artifactuprising.com/media/catalog/product/p/r/prints-satin-hero-pdp.jpg?width=1300&auto=webp",
+  quantity: 3,
 };
 
 beforeAll(async () => {
   await pool.query(
-    'CREATE TABLE art( id SERIAL PRIMARY KEY, name TEXT, artist TEXT, description TEXT, width INT, height INT, date DATE );'
+    'CREATE TABLE carts( id SERIAL PRIMARY KEY, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP );'
+  );
+  await pool.query(
+    'CREATE TABLE products( id SERIAL PRIMARY KEY, name TEXT, description TEXT, price MONEY, image_url TEXT, quantity INT );'
+  );
+  await pool.query(
+    'CREATE TABLE carts_products( id SERIAL PRIMARY KEY, product_id INT REFERENCES products(id) ON DELETE CASCADE, cart_id INT REFERENCES carts(id) ON DELETE CASCADE );'
   );
 });
 
 beforeEach(async () => {
-  // Seed with some data
+  // Seed with product data
   await pool.query(
-    'INSERT INTO art(name, artist, description, width, height, date) VALUES ($1, $2, $3, $4, $5, $6), ($1, $2, $3, $4, $5, $6);',
+    'INSERT INTO products(name, description, price, image_url, quantity) VALUES ($1, $2, $3, $4, $5), ($1, $2, $3, $4, $5);',
     [
-      artPiece.name,
-      artPiece.artist,
-      artPiece.description,
-      artPiece.width,
-      artPiece.height,
-      artPiece.date
+      product.name,
+      product.description,
+      product.price,
+      product.image_url,
+      product.quantity,
     ]
   );
 });
 
 afterEach(async () => {
-  await pool.query('DELETE FROM art');
+  await pool.query('DELETE FROM carts_products');
+  await pool.query('DELETE FROM products');
+  await pool.query('DELETE FROM carts');
 });
 
 afterAll(async () => {
-  await pool.query('DROP TABLE art');
+  await pool.query('DROP TABLE carts_products');
+  await pool.query('DROP TABLE products');
+  await pool.query('DROP TABLE carts');
   pool.end();
 });
 
-describe("GET request to '/art'", () => {
-  test('It should respond with an array of art', done => {
+describe("GET request to '/products'", () => {
+  test('It should respond with an array of products', done => {
     supertest(app)
-      .get('/art')
+      .get('/products')
       .end((error, response) => {
         if (error) return done(error);
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual([
           {
             id: 2,
-            name: 'The Sea Triumph of Charles II',
-            artist: 'Antonio Verrio',
+            name: 'Everyday Print Set',
             description:
-              "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-            width: 565,
-            height: 500,
-            date: '2020-04-14T00:00:00.000Z'
+              "With their high-quality look and feel, these photo prints are designed to honor the everyday. Choose from matte, double-thick matte, and satin paper options.",
+            price: '$9.01',
+            image_url: "https://media.artifactuprising.com/media/catalog/product/p/r/prints-satin-hero-pdp.jpg?width=1300&auto=webp",
+            quantity: 3,
           },
           {
             id: 1,
-            name: 'The Sea Triumph of Charles II',
-            artist: 'Antonio Verrio',
+            name: 'Everyday Print Set',
             description:
-              "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-            width: 565,
-            height: 500,
-            date: '2020-04-14T00:00:00.000Z'
+              "With their high-quality look and feel, these photo prints are designed to honor the everyday. Choose from matte, double-thick matte, and satin paper options.",
+            price: '$9.01',
+            image_url: "https://media.artifactuprising.com/media/catalog/product/p/r/prints-satin-hero-pdp.jpg?width=1300&auto=webp",
+            quantity: 3,
           }
         ]);
         done();
@@ -85,23 +91,22 @@ describe("GET request to '/art'", () => {
   });
 });
 
-describe("GET request to '/art/:id'", () => {
-  test('It should respond with the requested art', done => {
+describe("GET request to '/products/:id'", () => {
+  test('It should respond with the requested product', done => {
     supertest(app)
-      .get('/art/4')
+      .get('/products/3')
       .end((error, response) => {
         if (error) return done(error);
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual([
           {
-            id: 4,
-            name: 'The Sea Triumph of Charles II',
-            artist: 'Antonio Verrio',
+            id: 3,
+            name: 'Everyday Print Set',
             description:
-              "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-            width: 565,
-            height: 500,
-            date: '2020-04-14T00:00:00.000Z'
+              "With their high-quality look and feel, these photo prints are designed to honor the everyday. Choose from matte, double-thick matte, and satin paper options.",
+            price: '$9.01',
+            image_url: "https://media.artifactuprising.com/media/catalog/product/p/r/prints-satin-hero-pdp.jpg?width=1300&auto=webp",
+            quantity: 3,
           }
         ]);
         done();
@@ -109,31 +114,14 @@ describe("GET request to '/art/:id'", () => {
   });
 });
 
-describe('POST request to /art', () => {
-  test('It should respond with the newly created art', done => {
+describe('POST request to /carts', () => {
+  test('It should respond with the newly created cart id', done => {
     supertest(app)
-      .post('/art')
-      // .set('Accept', 'application/json')
-      .send({
-        name: 'The Sea Triumph of Charles II',
-        artist: 'Antonio Verrio',
-        description:
-          "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-        width: 565,
-        height: 500,
-        date: '2020-04-14T00:00:00.000Z'
-      })
+      .post('/carts')
       .expect(201, (error, response) => {
         expect(response.body).toEqual([
           {
-            id: 7,
-            name: 'The Sea Triumph of Charles II',
-            artist: 'Antonio Verrio',
-            description:
-              "This was the first work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-            width: 565,
-            height: 500,
-            date: '2020-04-14T00:00:00.000Z'
+            id: 1
           }
         ]);
         done();
@@ -141,27 +129,38 @@ describe('POST request to /art', () => {
   });
 });
 
-describe('PUT request to /art', () => {
-  test('It should respond with the updated art', done => {
+describe('DELETE request to /carts/:id', () => {
+  test('It should respond with the id of the deleted cart', async (done) => {
+    // Seed with cart data
+    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
     supertest(app)
-      .put('/art/9')
-      // .set('Accept', 'application/json')
+      .delete('/carts/2')
+      .expect(200, (error, response) => {
+        expect(response.body).toEqual([
+          {
+            id: 2
+          }
+        ]);
+        done();
+      });
+  });
+});
+
+describe('POST request to /carts/:id', () => {
+  test('It should respond with the added cart item', async (done) => {
+    // Seed with cart data
+    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
+    supertest(app)
+      .post('/carts/3')
       .send({
-        name: 'The Ocean Triumph of Charles III',
-        description:
-          "This was the second work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'."
+        product_id: 9
       })
       .expect(200, (error, response) => {
         expect(response.body).toEqual([
           {
-            id: 9,
-            name: 'The Ocean Triumph of Charles III',
-            artist: 'Antonio Verrio',
-            description:
-              "This was the second work painted for Charles II by Antonio Verrio, and is believed to have been a trial piece, allowing the artist to demonstrate his talents to his potential royal patron. By this date, c.1674, Verrio had already produced decorative schemes for a number of figures at court, including the Earl of Arlington at both Euston Hall in Suffolk and Arlington House in St James's Park. It was at Arlington House – the site of Buckingham Palace today, that the artist was first introduced to his future royal patron, who 'came in his walks round the Park to see the Workes Verrio was doing there'.",
-            width: 565,
-            height: 500,
-            date: '2020-04-14T00:00:00.000Z'
+            id: 1,
+            cart_id: 3,
+            product_id: 9,
           }
         ]);
         done();
@@ -169,14 +168,17 @@ describe('PUT request to /art', () => {
   });
 });
 
-describe('DELETE request to /art', () => {
-  test('It should respond with the deleted art', done => {
+describe('DELETE request to /carts/:id', () => {
+  test('It should respond with the deleted cart item id', async (done) => {
+    // Seed with cart data
+    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
+    await pool.query('INSERT INTO carts_products(product_id, cart_id) VALUES (11, 4)')
     supertest(app)
-      .delete('/art/10')
+      .delete('/carts/4')
       .expect(200, (error, response) => {
         expect(response.body).toEqual([
           {
-            id: 10
+            id: 4
           }
         ]);
         done();

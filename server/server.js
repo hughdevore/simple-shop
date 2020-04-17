@@ -19,23 +19,23 @@ app.get('/', (request, response) => {
     data: {
       message: 'Welcome to the API!',
       routes: {
-        getArt: 'GET request to /art will return an array of art.',
-        getArtById:
-          'GET request to /art with an id param will return that piece of art.',
-        createArt: 'POST request to /art will create a piece of art.',
-        updateArt:
-          'PUT request to /art with an id param will update that piece of art.',
-        deleteArt:
-          'DELETE request to /art with an id param will delete that piece of art.'
+        getProducts: 'GET request to /products will return an array of products.',
+        getProductById: 'GET request to /products/:id will return that product.',
+        createCart: 'POST request to /carts will create a cart.',
+        deleteCart: 'DELETE request to /carts/:id will delete a cart.',
+        addItemToCart: 'POST request to /carts/:id and passing the product_id will add a product to the cart.',
+        removeItemFromCart:
+          'DELETE request to /cart/:id and passing the product_id will delete that product from the cart.'
       }
     }
   });
 });
 
-app.get('/art', db.getArt);
-app.get('/art/:id', db.getArtById);
-app.post('/art', db.createArt);
-app.put('/art/:id', db.updateArt);
-app.delete('/art/:id', db.deleteArt);
+app.get('/products', db.getProducts);
+app.get('/products/:id', db.getProductById);
+app.post('/carts', db.createCart);
+app.delete('/carts/:id', db.deleteCart);
+app.post('/carts/:id', db.addItemToCart);
+app.delete('/carts/:id', db.removeItemFromCart);
 
 module.exports = app;

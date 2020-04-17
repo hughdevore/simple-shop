@@ -1,7 +1,7 @@
 {
-  "name": "digital-art-manager",
+  "name": "simple-shop",
   "version": "1.0.0",
-  "description": "As a software engineer, you've been tasked to create a CRUD API for managing digital art",
+  "description": "A simple shopping cart experience containerized with docker and built in Node/Express/PostgreSQL/React.",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --legacy-watch index.js",
@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hughdevore/digital-art-manager.git"
+    "url": "git+https://github.com/hughdevore/simple-shop.git"
   },
   "keywords": [
     "React",
@@ -41,7 +41,7 @@
     "space": true
   },
   "bugs": {
-    "url": "https://github.com/hughdevore/digital-art-manager/issues"
+    "url": "https://github.com/hughdevore/simple-shop/issues"
   },
-  "homepage": "https://github.com/hughdevore/digital-art-manager#readme"
+  "homepage": "https://github.com/hughdevore/simple-shop#readme"
 }
