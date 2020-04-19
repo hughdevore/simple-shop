@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import styled from 'styled-components';
 import './App.css';
-import moment from 'moment';
 import {
   Button,
   Card,
@@ -17,6 +17,20 @@ import GithubLogo from './GitHub-Mark-Light-64px.png';
 const { Content, Footer, Header, Sider } = Layout;
 const { Item } = List;
 const { Meta } = Card;
+
+const PageHeader = styled.h1`
+  color: white;
+  font-size: 3em;
+  padding-top: .2em;
+  font-weight: 700;
+`;
+
+const Price = styled.span`
+  color: black;
+  font-weight: 600;
+  font-size: 1.25em;
+  line-height: 2.25em;
+`;
 
 class App extends Component {
   state = {
@@ -83,8 +97,8 @@ class App extends Component {
     const { list, updateArt } = this.state;
     return (
       <Layout style={{minHeight: '100vh' }}>
-        <Header className="art-manager-header">
-          <h1>Simple Shop</h1>
+        <Header className="shop-header">
+          <PageHeader>Simple Shop</PageHeader>
         </Header>
         <Layout>
           <Content
@@ -93,7 +107,7 @@ class App extends Component {
             <List 
               className="shop-list"
               grid={{
-                gutter: 20,
+                gutter: [24, 40],
                 sm: 1,
                 md: 2,
                 lg: 2,
@@ -147,7 +161,8 @@ class App extends Component {
                   // </Item>
                   <Item>
                     <Card
-                      style={{ width: 300 }}
+                      hoverable
+                      style={{ width: '100%'}}
                       cover={
                         <img
                           alt="example"
@@ -155,13 +170,12 @@ class App extends Component {
                         />
                       }
                       actions={[
-                        <SettingOutlined key="setting" />,
-                        <EditOutlined key="edit" />,
-                        <EllipsisOutlined key="ellipsis" />,
+                        <Price>{item.price}</Price>,
+                        <Button size="large" type="primary" key="add-to-cart">Add to Cart</Button>,
                       ]}
                     >
                       <Meta
-                        title={item.title}
+                        title={item.name}
                         description={item.description}
                       />
                     </Card>
@@ -171,20 +185,21 @@ class App extends Component {
             />
           </Content>
           <Sider
-            width={350}
+            width={450}
+            height="82vh"
             style={{
               padding: '2em',
               backgroundColor: 'rgb(236, 236, 236)',
             }}
             breakpoint="lg"
             collapseWidth="0"
+            className="shop-sider"
           >
-            <h2 className="update-art-form-header">Cart Summary</h2>
             <Cart />
           </Sider>
         </Layout>
         <Footer className="app-footer">
-          <a href="https://github.com/hughdevore/digital-art-manager">
+          <a href="https://github.com/hughdevore/simple-shop">
             <img src={GithubLogo} className="github-logo" alt="GitHub Logo with link to repository"/>
           </a>
         </Footer>

@@ -1,22 +1,105 @@
-import React from 'react';
-import moment from 'moment';
+import React, {Component, Fragment} from 'react';
 import axios from 'axios';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import styled from 'styled-components';
+import {ShoppingCartOutlined} from '@ant-design/icons';
 import {
   Button,
-  Statistic,
-  Card,
-  Row,
-  Col 
+  Empty,
+  List,
+  Select,
+  Statistic
 } from 'antd';
+
+const { Option } = Select;
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
 };
 
-const Cart = (props) => {
-//   const [form] = Form.useForm();
+const TaxesAmount = styled.span`
+  color: black;
+  font-weight: 600;
+  font-size: 1em;
+  float: right;
+  margin-right: 4.15em;
+`;
+
+const TotalAmount = styled.span`
+  color: black;
+  font-weight: 600;
+  font-size: 1em;
+  float: right;
+  margin-right: 3.25em;
+`;
+
+const CartHeader = styled.h1`
+  border-bottom: 1px solid rgb(82, 82, 82);
+  font-size: 2em;
+  text-align: left;
+  color: black;
+`;
+
+const Price = styled.span`
+  color: black;
+  font-weight: 600;
+  font-size: 1em;
+  width: 100px;
+`;
+
+const TaxesContainer = styled.span`
+  width: 100%;
+  display: inline-block;
+  padding-top: 1em;
+  padding-bottom: .5em;
+  font-size: 1.25em;
+`;
+
+const Total = styled.span`
+  color: black;
+`;
+
+const TotalContainer = styled.span`
+  width: 100%;
+  display: inline-block;
+  padding: .25em 0;
+  font-size: 1.5em;
+  border-top: 1px solid rgb(82, 82, 82);
+  border-bottom: 1px solid rgb(82, 82, 82);
+`;
+
+const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2
+})
+
+class Cart extends Component {
+
+  state = {
+    cartItems: [],
+    cartTaxesAndShipping: 0,
+    cartTotal: 0,
+  }
+
+  componentDidMount() {
+    this.getCartList();
+  }
+
+  getCartList = async () => {
+    const response = await axios.get('http://localhost:3100/carts/1');
+    const body = response.data;
+    if (response.status !== 200) {
+      throw Error(body.message) 
+    }
+    this.setState({ 
+      cartItems: body,
+    });
+  }
+
+  handleChange = (value) => {
+    console.log(`selected ${value}`);
+  }
   
 //   const onFinish = async (values) => {
 //     const { artist, date, description, height, name, width } = values;
@@ -51,37 +134,75 @@ const Cart = (props) => {
 //     }
 //   };
 
-  return (
-    <div className="site-statistic-demo-card">
-        <Card>
-            <Statistic
-                title="Subtotal"
-                value={100.57}
-                precision={2}
-                valueStyle={{ color: "#3f8600" }}
-                prefix="$"
-            />
-        </Card>
-        <Card>
-            <Statistic
-                title="Shipping & Taxes"
-                value={21.00}
-                precision={2}
-                valueStyle={{ color: "#cf1322" }}
-                prefix="$"
-            />
-        </Card>
-        <Card>
-            <Statistic
-                title="Amount Due"
-                value={121.57}
-                precision={2}
-                valueStyle={{ color: "black", fontWeight: 800 }}
-                prefix="$"
-            />
-        </Card>
-    </div>
-  );
+  cartQuantity = (item) => {
+    return (
+      <Select defaultValue="7" onChange={this.handleChange}>
+        <Option value="1">1</Option>
+        <Option value="2">2</Option>
+        <Option value="3">3</Option>
+      </Select>
+    );
+  }
+
+  render() {
+    const {cartItems, cartTaxesAndShipping, cartTotal} = this.state;
+    return (
+      <div>
+        <CartHeader>Cart Summary</CartHeader>
+        <List
+          locale={{ 
+            emptyText: (
+              <Empty
+                image={<ShoppingCartOutlined />}
+                style={{
+                  fontSize: '7em'
+                }}
+                description={
+                  <span style={{fontSize: '18px'}}>
+                    Add items to your cart!
+                  </span>
+                }
+              />
+            )
+          }}
+          emptyText="No items in your cart"
+          itemLayout="horizontal"
+          dataSource={cartItems}
+          renderItem={item => (
+            <List.Item
+          actions={[<Price>{item.price}</Price>,this.cartQuantity(item.quantity)]}
+            >
+              <List.Item.Meta
+                title={item.name}
+              />
+            </List.Item>
+        )}
+        />
+        <TaxesContainer>
+          <span>Taxes</span>
+          <TaxesAmount>{formatter.format(cartTaxesAndShipping)}</TaxesAmount>
+        </TaxesContainer>
+        <TotalContainer>
+          <Total>Cart Total</Total>
+          <TotalAmount>{formatter.format(cartTotal)}</TotalAmount>
+        </TotalContainer>
+        <div style={{padding: '3em', textAlign: 'center'}}>
+          <Button 
+            size="large"
+            type="primary"
+            style={{
+              backgroundColor: 'green',
+              fontSize: '2em',
+              height: '2.25em',
+              border: 'none',
+            }}
+          >
+            Checkout
+          </Button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default Cart;

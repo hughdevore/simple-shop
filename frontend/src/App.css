@@ -9,16 +9,12 @@
   overflow: scroll;
 }
 
-.art-manager-header {
-  height: 6em;
+.ant-card-actions {
+  background-color: white;
 }
 
-.art-manager-header h1 {
-  color: white;
-  font-size: 2em;
-  padding-top: .4em;
-  font-weight: 700;
-  border-bottom: black 1px solid;
+.shop-header {
+  height: 6em;
 }
 
 .art-manager-list-container {
@@ -44,12 +40,6 @@
   font-size: 1.5em;
 }
 
-.update-art-form-header {
-  border-bottom: 2px solid #001529;
-  width: 33%;
-  font-size: 1.25em;
-}
-
 .app-footer {
   background-color: #001529;
   text-align: right;
@@ -69,15 +59,12 @@
   max-height: 60vh;
 }
 
-.shop-list-container {
-  background-color: white;
-  padding: 5em 2em;
+.shop-sider {
+  max-height: 82vh;
+  overflow: scroll;
 }
 
-
-
-
-.site-statistic-demo-card {
-  background: #ececec;
-  padding: 30px;
+.shop-list-container {
+  background-color: white;
+  padding-top: 3em;
 }
