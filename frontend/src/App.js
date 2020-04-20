@@ -34,17 +34,10 @@ const Price = styled.span`
 
 class App extends Component {
   state = {
-    cartId: 1,
-    cartItems: [],
-    initLoading: true,
-    list: [],
-    loading: false,
+    cartId: 0,
+    cartList: [],
+    productList: [],
     visible: false,
-    updateArt: {
-      id: null,
-      description: null,
-      name: null,
-    }
   };
 
   createCart = async () => {
@@ -53,26 +46,45 @@ class App extends Component {
     if (response.status !== 201) {
       throw Error(body.message);
     }
-    console.log(body);
     this.setState({ 
-      cartID: body.id,
+      cartID: body[0].id,
     });
+    // Persist the cartId in the client with local storage
+    localStorage.setItem('cartId', body[0].id);
   }
 
   getCartList = async () => {
-    const response = await axios.get(`http://localhost:3100/carts/${this.state.cartId}`);
+    let cartListBeta = [];
+    let cartList = [];
+    const cartId = localStorage.getItem('cartId');
+    const response = await axios.get(`http://localhost:3100/carts/${cartId}`);
     const body = response.data;
     if (response.status !== 200) {
       throw Error(body.message);
     }
-    this.setState({ 
-      cartItems: body,
+    const productAggregate = body.reduce(function(results, item) {
+      (results[item.product_id] = results[item.product_id] || []).push(item);
+      return results;
+    }, {});
+    Object.keys(productAggregate).forEach(item => {
+      let listItem = {};
+      listItem.id = item;
+      listItem.quantity = productAggregate[item].length;
+      cartListBeta.push(listItem);
     });
-  }
-
-  componentDidMount() {
-    this.getProductList();
-    this.getCartList();
+    cartList = cartListBeta.map(async item => {
+      await this.getProductById(item.id)
+      .then(product => {
+        item.price = product[0].price;
+        item.name = product[0].name;
+        return item;
+      });
+    });
+    if (cartList) {
+      this.setState({ 
+        cartList: cartList,
+      });
+    }
   }
 
   getProductList = async () => {
@@ -82,13 +94,21 @@ class App extends Component {
       throw Error(body.message) 
     }
     this.setState({ 
-      list: body,
+      productList: body,
     });
   }
 
+  getProductById = async (id) => {
+    const response = await axios.get(`http://localhost:3100/products/${id}`);
+    const body = response.data;
+    if (response.status !== 200) {
+      throw Error(body.message);
+    }
+    return body;
+  };
+
   addToCart = async (e) => {
     const productId = e.target.getAttribute('id');
-    console.log(productId);
     const response = await axios.post(`http://localhost:3100/carts/${this.state.cartId}`, {product_id: productId});
     const body = response.data;
     if (response.status !== 201) {
@@ -136,9 +156,19 @@ class App extends Component {
     });
   };
 
+  componentDidMount() {
+    const cartId = localStorage.getItem('cartId');
+    if (cartId !== 0) {
+      this.setState({
+        cartId: cartId
+      });
+    }
+    this.getProductList();
+    this.getCartList();
+  }
+
   render() {
-    const { list } = this.state;
-    
+    const { productList } = this.state;    
     return (
       <Layout style={{minHeight: '100vh' }}>
         <Header className="shop-header">
@@ -158,7 +188,7 @@ class App extends Component {
                 xl: 2,
                 xxl: 3,
               }}
-              dataSource={list}
+              dataSource={productList}
               size="large"
               split={true}
               renderItem={item => {   
@@ -200,7 +230,7 @@ class App extends Component {
             collapseWidth="0"
             className="shop-sider"
           >
-            <Cart createCart={this.createCart} cartItems={this.state.cartItems} />
+            <Cart cartId={this.state.cartId} cartList={this.state.cartList} getCartList={this.getCartList}/>
           </Sider>
         </Layout>
         <Footer className="app-footer">

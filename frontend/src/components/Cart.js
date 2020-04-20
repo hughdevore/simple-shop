@@ -1,14 +1,8 @@
-import React, {Component, Fragment} from 'react';
-import axios from 'axios';
-import styled from 'styled-components';
-import {ShoppingCartOutlined} from '@ant-design/icons';
-import {
-  Button,
-  Empty,
-  List,
-  Modal,
-  Select,
-} from 'antd';
+import React, { Component, Fragment } from "react";
+import axios from "axios";
+import styled from "styled-components";
+import { ShoppingCartOutlined } from "@ant-design/icons";
+import { Button, Empty, List, Modal, Select } from "antd";
 
 const { Option } = Select;
 
@@ -51,7 +45,7 @@ const TaxesContainer = styled.span`
   width: 100%;
   display: inline-block;
   padding-top: 1em;
-  padding-bottom: .5em;
+  padding-bottom: 0.5em;
   font-size: 1.25em;
 `;
 
@@ -62,17 +56,17 @@ const Total = styled.span`
 const TotalContainer = styled.span`
   width: 100%;
   display: inline-block;
-  padding: .25em 0;
+  padding: 0.25em 0;
   font-size: 1.5em;
   border-top: 1px solid rgb(82, 82, 82);
   border-bottom: 1px solid rgb(82, 82, 82);
 `;
 
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2
-})
+const formatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+});
 
 class Cart extends Component {
   state = {
@@ -80,79 +74,81 @@ class Cart extends Component {
     cartTaxes: 0,
     cartTotal: 0,
     visible: false,
-  }
-
-  componentDidMount() {
-    if (!this.props.cartItems.length && this.props.cartId === 0) {
-      console.log(this.props.cartItems)
-      this.setState({
-        visible: true
-      })
-    }
-  }
+  };
 
   handleChange = (value) => {
     console.log(`selected ${value}`);
-  }
+
+    // TODO: Update cart quantity on change
+  };
 
   hideModal = () => {
+    const cartId = localStorage.getItem("cartId");
+    console.log(cartId);
     this.setState({
       visible: false,
     });
-    if (this.state.cartId === 0) {
+    if (!cartId || cartId === 0) {
       this.props.createCart();
     }
   };
 
-  cartQuantity = (item) => {
+  cartQuantity = (quantity) => {
     return (
-      <Select defaultValue="7" onChange={this.handleChange}>
+      <Select defaultValue={quantity} onChange={this.handleChange}>
         <Option value="1">1</Option>
         <Option value="2">2</Option>
         <Option value="3">3</Option>
       </Select>
     );
+  };
+
+  componentDidMount() {
+    const cartId = localStorage.getItem("cartId");
+    if (cartId === 0) {
+      this.setState({
+        visible: true,
+      });
+    }
   }
 
   render() {
-    const {cartTaxes, cartTotal, visible} = this.state;
-    const {cartItems} = this.props;
-
+    const { cartTaxes, cartTotal, visible } = this.state;
+    const { cartList, getCartList } = this.props;
+    console.log(cartList);
     return (
       <div>
         <CartHeader>Cart Summary</CartHeader>
         <List
-          locale={{ 
+          locale={{
             emptyText: (
               <Empty
                 image={<ShoppingCartOutlined />}
                 style={{
-                  fontSize: '7em'
+                  fontSize: "7em",
                 }}
                 description={
-                  <span style={{fontSize: '18px'}}>
+                  <span style={{ fontSize: "18px" }}>
                     Add items to your cart!
                   </span>
                 }
               />
-            )
+            ),
           }}
           itemLayout="horizontal"
-          dataSource={cartItems}
-          renderItem={item => { 
-            console.log(item);
-            return(
+          dataSource={cartList}
+          renderItem={(item) => {
+            const { name, price, quantity } = item;
+            return (
               <List.Item
-                actions={[<
-                  Price>{item.price}</Price>,
-                  this.cartQuantity(item.quantity)
+                actions={[
+                  <Price>{price}</Price>,
+                  this.cartQuantity(quantity),
                 ]}
               >
-                <List.Item.Meta
-                  title={item.name}
-                />
+                <List.Item.Meta title={name} />
               </List.Item>
-            )
+            );
           }}
         />
         <TaxesContainer>
@@ -163,15 +159,15 @@ class Cart extends Component {
           <Total>Cart Total</Total>
           <TotalAmount>{formatter.format(cartTotal)}</TotalAmount>
         </TotalContainer>
-        <div style={{padding: '3em', textAlign: 'center'}}>
-          <Button 
+        <div style={{ padding: "3em", textAlign: "center" }}>
+          <Button
             size="large"
             type="primary"
             style={{
-              backgroundColor: 'green',
-              fontSize: '2em',
-              height: '2.25em',
-              border: 'none',
+              backgroundColor: "green",
+              fontSize: "2em",
+              height: "2.25em",
+              border: "none",
             }}
           >
             Checkout
