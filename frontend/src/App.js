@@ -40,6 +40,19 @@ class App extends Component {
     visible: false,
   };
 
+  convertMoneyToNumber = (moneyString) => {
+    return parseInt(moneyString.replace(/[^0-9.-]+/g,""));
+  }
+
+  convertNumberToMoney = (moneyString) => {
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
+    return formatter.format(moneyString);
+    
+  }
+
   createCart = async () => {
     const response = await axios.post('http://localhost:3100/carts');
     const body = response.data;
@@ -49,38 +62,34 @@ class App extends Component {
     this.setState({ 
       cartID: body[0].id,
     });
-    // Persist the cartId in the client with local storage
+    // Persist the cartId in the client with local storage.
     localStorage.setItem('cartId', body[0].id);
   }
 
   getCartList = async () => {
-    let cartListBeta = [];
     let cartList = [];
     const cartId = localStorage.getItem('cartId');
     const response = await axios.get(`http://localhost:3100/carts/${cartId}`);
     const body = response.data;
+    console.log(body);
     if (response.status !== 200) {
       throw Error(body.message);
     }
     const productAggregate = body.reduce(function(results, item) {
-      (results[item.product_id] = results[item.product_id] || []).push(item);
+      (results[item.id] = results[item.id] || []).push(item);
       return results;
     }, {});
     Object.keys(productAggregate).forEach(item => {
       let listItem = {};
       listItem.id = item;
+      let price = this.convertMoneyToNumber(productAggregate[item][0].price);
+      listItem.name = productAggregate[item][0].name;
       listItem.quantity = productAggregate[item].length;
-      cartListBeta.push(listItem);
+      let totalPrice = price * listItem.quantity;
+      listItem.price = this.convertNumberToMoney(totalPrice);
+      cartList.push(listItem);
     });
-    cartList = cartListBeta.map(async item => {
-      await this.getProductById(item.id)
-      .then(product => {
-        item.price = product[0].price;
-        item.name = product[0].name;
-        return item;
-      });
-    });
-    if (cartList) {
+    if (cartList.length > 0) {
       this.setState({ 
         cartList: cartList,
       });
@@ -164,7 +173,7 @@ class App extends Component {
       });
     }
     this.getProductList();
-    this.getCartList();
+    // this.getCartList();
   }
 
   render() {

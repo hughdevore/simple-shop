@@ -58,7 +58,7 @@ const deleteCart = (request, response) => {
 const getItemsInCart = (request, response) => {
   const cart_id = parseInt(request.params.id);
   pool.query(
-    'SELECT * FROM carts_products WHERE cart_id = $1',
+    'SELECT products.id, products.price, products.name FROM products INNER JOIN carts_products ON products.id = carts_products.product_id WHERE carts_products.cart_id = $1',
     [cart_id],
     (error, results) => {
       if (error) {

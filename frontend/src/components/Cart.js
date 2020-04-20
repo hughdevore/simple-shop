@@ -109,6 +109,8 @@ class Cart extends Component {
       this.setState({
         visible: true,
       });
+    } else {
+      this.props.getCartList();
     }
   }
 
