@@ -54,6 +54,21 @@ const deleteCart = (request, response) => {
   );
 };
 
+// @TODO: Add Test.
+const getItemsInCart = (request, response) => {
+  const cart_id = parseInt(request.params.id);
+  pool.query(
+    'SELECT * FROM carts_products WHERE cart_id = $1',
+    [cart_id],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+}
+
 const addItemToCart = (request, response) => {
   const cart_id = parseInt(request.params.id);
   const {product_id} = request.body;  
@@ -89,6 +104,7 @@ module.exports = {
   getProductById,
   createCart,
   deleteCart,
+  getItemsInCart,
   addItemToCart,
   removeItemFromCart
 };

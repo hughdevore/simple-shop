@@ -6,8 +6,8 @@ import {
   Button,
   Empty,
   List,
+  Modal,
   Select,
-  Statistic
 } from 'antd';
 
 const { Option } = Select;
@@ -75,64 +75,34 @@ const formatter = new Intl.NumberFormat('en-US', {
 })
 
 class Cart extends Component {
-
   state = {
-    cartItems: [],
-    cartTaxesAndShipping: 0,
+    cartSubtotal: 100,
+    cartTaxes: 0,
     cartTotal: 0,
+    visible: false,
   }
 
   componentDidMount() {
-    this.getCartList();
-  }
-
-  getCartList = async () => {
-    const response = await axios.get('http://localhost:3100/carts/1');
-    const body = response.data;
-    if (response.status !== 200) {
-      throw Error(body.message) 
+    if (!this.props.cartItems.length && this.props.cartId === 0) {
+      console.log(this.props.cartItems)
+      this.setState({
+        visible: true
+      })
     }
-    this.setState({ 
-      cartItems: body,
-    });
   }
 
   handleChange = (value) => {
     console.log(`selected ${value}`);
   }
-  
-//   const onFinish = async (values) => {
-//     const { artist, date, description, height, name, width } = values;
-//     let art = {
-//       artist: artist ? artist : 'Hughie Devore',
-//       date: date ? date.format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
-//       description: description ? description : 'A beautiful view of snowy peaks in the rocky mountains.',
-//       height: height ? height : 1000,
-//       name: name ? name : 'Rocky Mountain Masterpiece',
-//       width: width ? width : 1250,
-//     };
 
-//     const response = await axios.post('http://localhost:3100/art', art);
-//     const body = response.data;
-//     if (response.status !== 201) {
-//       notification.error({
-//         message: 'Error, your art could not be added to the manager.',
-//         description: body.message,
-//         onClick: () => {
-//           console.log('Notification Clicked!');
-//         },
-//       });
-//     } else {
-//       notification.success({
-//         message: 'Your art was added to the manager!',
-//         description: body.message,
-//         onClick: () => {
-//           console.log('Notification Clicked!');
-//         },
-//       });
-//       props.getArtList();
-//     }
-//   };
+  hideModal = () => {
+    this.setState({
+      visible: false,
+    });
+    if (this.state.cartId === 0) {
+      this.props.createCart();
+    }
+  };
 
   cartQuantity = (item) => {
     return (
@@ -145,7 +115,9 @@ class Cart extends Component {
   }
 
   render() {
-    const {cartItems, cartTaxesAndShipping, cartTotal} = this.state;
+    const {cartTaxes, cartTotal, visible} = this.state;
+    const {cartItems} = this.props;
+
     return (
       <div>
         <CartHeader>Cart Summary</CartHeader>
@@ -165,22 +137,27 @@ class Cart extends Component {
               />
             )
           }}
-          emptyText="No items in your cart"
           itemLayout="horizontal"
           dataSource={cartItems}
-          renderItem={item => (
-            <List.Item
-          actions={[<Price>{item.price}</Price>,this.cartQuantity(item.quantity)]}
-            >
-              <List.Item.Meta
-                title={item.name}
-              />
-            </List.Item>
-        )}
+          renderItem={item => { 
+            console.log(item);
+            return(
+              <List.Item
+                actions={[<
+                  Price>{item.price}</Price>,
+                  this.cartQuantity(item.quantity)
+                ]}
+              >
+                <List.Item.Meta
+                  title={item.name}
+                />
+              </List.Item>
+            )
+          }}
         />
         <TaxesContainer>
           <span>Taxes</span>
-          <TaxesAmount>{formatter.format(cartTaxesAndShipping)}</TaxesAmount>
+          <TaxesAmount>{formatter.format(cartTaxes)}</TaxesAmount>
         </TaxesContainer>
         <TotalContainer>
           <Total>Cart Total</Total>
@@ -200,6 +177,16 @@ class Cart extends Component {
             Checkout
           </Button>
         </div>
+        <Modal
+          title="Welcome to Simple Shop"
+          visible={visible}
+          maskClosable={true}
+          onOk={this.hideModal}
+          onCancel={this.hideModal}
+          footer={null}
+        >
+          Add items to your cart to get started!
+        </Modal>
       </div>
     );
   }

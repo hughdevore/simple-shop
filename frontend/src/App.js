@@ -34,6 +34,8 @@ const Price = styled.span`
 
 class App extends Component {
   state = {
+    cartId: 1,
+    cartItems: [],
     initLoading: true,
     list: [],
     loading: false,
@@ -45,8 +47,32 @@ class App extends Component {
     }
   };
 
+  createCart = async () => {
+    const response = await axios.post('http://localhost:3100/carts');
+    const body = response.data;
+    if (response.status !== 201) {
+      throw Error(body.message);
+    }
+    console.log(body);
+    this.setState({ 
+      cartID: body.id,
+    });
+  }
+
+  getCartList = async () => {
+    const response = await axios.get(`http://localhost:3100/carts/${this.state.cartId}`);
+    const body = response.data;
+    if (response.status !== 200) {
+      throw Error(body.message);
+    }
+    this.setState({ 
+      cartItems: body,
+    });
+  }
+
   componentDidMount() {
     this.getProductList();
+    this.getCartList();
   }
 
   getProductList = async () => {
@@ -60,7 +86,24 @@ class App extends Component {
     });
   }
 
-  // TODO: Add Product to Cart (+ buttton)
+  addToCart = async (e) => {
+    const productId = e.target.getAttribute('id');
+    console.log(productId);
+    const response = await axios.post(`http://localhost:3100/carts/${this.state.cartId}`, {product_id: productId});
+    const body = response.data;
+    if (response.status !== 201) {
+      notification.error({
+        message: 'Error, the selected item could not be added to your cart.',
+        description: body.message,
+      });
+    } else {
+      notification.success({
+        message: 'Item added to your cart!',
+        description: body.message,
+      });
+      this.getCartList();
+    }
+  }
 
   // TODO: Remove Product from Cart
 
@@ -94,7 +137,8 @@ class App extends Component {
   };
 
   render() {
-    const { list, updateArt } = this.state;
+    const { list } = this.state;
+    
     return (
       <Layout style={{minHeight: '100vh' }}>
         <Header className="shop-header">
@@ -117,52 +161,13 @@ class App extends Component {
               dataSource={list}
               size="large"
               split={true}
-              renderItem={item => {                
+              renderItem={item => {   
                 return (
-                  // <Item
-                  //   key={item.id}
-                  //   avatar={(<img src={item.image_url} />)}
-                  //   extra={[
-                  //     <Button size="small" onClick={() =>{
-                  //       this.setState({
-                  //         updateArt: {
-                  //           id: item.id,
-                  //           description: item.description,
-                  //           name: item.name,
-                  //         }
-                  //       });
-                  //       this.showDrawer();
-                  //     }}>Quantity</Button>,
-                  //     <Popconfirm
-                  //       placement="topRight"
-                  //       title="Are you sure you want to remove this from your cart?"
-                  //       okText="Yes"
-                  //       cancelText="No"
-                  //       onConfirm={() => {this.deleteArt(item.id)}}
-                  //     >
-                  //       <DeleteOutlined 
-                  //         style={{paddingLeft: '2em'}}
-                  //         twoToneColor="black"
-                  //       />
-                  //     </Popconfirm>
-                  //   ]}
-                  //   actions={[
-                  //     <span><strong>Artist: </strong>{item.artist}</span>,
-                  //     <span><strong>Height: </strong>{item.width}</span>,
-                  //     <span><strong>Width: </strong>{item.width}</span>,
-                  //   ]}
-                  // >
-                  //   <Item.Meta
-                  //     key={`item-${item.id}`}
-                  //     title={item.name}
-                  //     description={moment.utc(item.date).format("ll")}
-                  //   />
-                  //   {item.description}
-                  // </Item>
                   <Item>
                     <Card
                       hoverable
                       style={{ width: '100%'}}
+                      onClick={this.addToCart}
                       cover={
                         <img
                           alt="example"
@@ -171,7 +176,7 @@ class App extends Component {
                       }
                       actions={[
                         <Price>{item.price}</Price>,
-                        <Button size="large" type="primary" key="add-to-cart">Add to Cart</Button>,
+                        <Button size="large" type="primary" id={item.id}>Add to Cart</Button>,
                       ]}
                     >
                       <Meta
@@ -195,7 +200,7 @@ class App extends Component {
             collapseWidth="0"
             className="shop-sider"
           >
-            <Cart />
+            <Cart createCart={this.createCart} cartItems={this.state.cartItems} />
           </Sider>
         </Layout>
         <Footer className="app-footer">
