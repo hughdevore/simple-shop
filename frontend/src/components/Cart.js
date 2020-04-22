@@ -211,7 +211,7 @@ class Cart extends Component {
     const { cartTaxes, cartTotal, cartList } = this.props;
 
     return (
-      <div>
+      <div style={{padding: '2em'}}>
         <div
           style={{borderBottom: '1px solid rgb(82, 82, 82)'}}
         >

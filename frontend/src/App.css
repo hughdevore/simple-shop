@@ -26,6 +26,11 @@
   background-color: #001529;
   text-align: right;
   padding-top: 1.25em;
+  position: fixed;
+  left:0px;
+  bottom:0px;
+  z-index: 1; 
+  width: 100%;
 }
 
 .ant-input-number.ant-input-number-sm {
@@ -58,10 +63,9 @@
 }
 
 
-.shop-list-containe {
+.shop-list-container {
   padding:1.5em 2em;
   background-color: white;
-  height: 82vh;
 }
 
 .github-logo {
@@ -74,12 +78,11 @@
 }
 
 .shop-list {
-  max-height: 60vh;
+  margin-bottom: 3em;
 }
 
 .shop-sider {
-  max-height: 82vh;
-  overflow: scroll;
+  background-color: rgb(236, 236, 236);
 }
 
 .shop-list-container {

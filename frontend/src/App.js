@@ -230,6 +230,23 @@ class App extends Component {
           <PageHeader>Simple Shop</PageHeader>
         </Header>
         <Layout>
+          <Sider
+            width={450}
+            height="82vh"
+            className="shop-sider"
+            breakpoint="lg"
+            collapsedWidth="0"
+          >
+            <Cart
+              cartId={cartId}
+              cartList={cartList}
+              cartTaxes={cartTaxes}
+              cartTotal={cartTotal}
+              createCart={this.createCart}
+              getCartList={this.getCartList}
+              updateCartQuantity={this.updateCartQuantity}
+            />
+          </Sider>
           <Content className="shop-list-container">
             <List
               className="shop-list"
@@ -271,27 +288,6 @@ class App extends Component {
               }}
             />
           </Content>
-          <Sider
-            width={450}
-            height="82vh"
-            style={{
-              padding: "2em",
-              backgroundColor: "rgb(236, 236, 236)",
-            }}
-            breakpoint="lg"
-            collapseWidth="0"
-            className="shop-sider"
-          >
-            <Cart
-              cartId={cartId}
-              cartList={cartList}
-              cartTaxes={cartTaxes}
-              cartTotal={cartTotal}
-              createCart={this.createCart}
-              getCartList={this.getCartList}
-              updateCartQuantity={this.updateCartQuantity}
-            />
-          </Sider>
         </Layout>
         <Footer className="app-footer">
           <a href="https://github.com/hughdevore/simple-shop">
