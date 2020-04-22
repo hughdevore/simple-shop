@@ -20,10 +20,6 @@ const TotalAmount = styled.span`
   margin-right: 3.25em;
 `;
 
-const HeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(82, 82, 82);
-`;
-
 const CartHeader = styled.h1`
   font-size: 2.5em;
   text-align: left;
@@ -58,10 +54,6 @@ const TaxesContainer = styled.span`
   font-size: 1.25em;
 `;
 
-const Total = styled.span`
-  color: black;
-`;
-
 const TotalContainer = styled.span`
   width: 100%;
   display: inline-block;
@@ -81,6 +73,21 @@ class Cart extends Component {
   state = {
     visible: false,
     productId: 0,
+  };
+
+  /**
+   * Convert strings formatted as MONEY to number.
+   *
+   * @param integer input The int to convert.
+   * @return string
+   */
+  convertToMoney = (input) => {
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    });
+    return formatter.format(input);
   };
 
   /**
@@ -201,16 +208,18 @@ class Cart extends Component {
 
   render() {
     const { visible } = this.state;
-    const { cartTaxes, cartTotal, cartList, convertToMoney } = this.props;
+    const { cartTaxes, cartTotal, cartList } = this.props;
 
     return (
       <div>
-        <HeaderContainer>
+        <div
+          style={{borderBottom: '1px solid rgb(82, 82, 82)'}}
+        >
           <CartHeader>Cart Summary</CartHeader>
           <CartHeaderCount>
-            {`${cartList.length} products in your cart`}
+            {`${cartList && cartList.length ? cartList.length : 0} products in your cart`}
           </CartHeaderCount>
-        </HeaderContainer>
+        </div>
         <List
           locale={{
             emptyText: (
@@ -251,11 +260,11 @@ class Cart extends Component {
         />
         <TaxesContainer>
           <span>Taxes</span>
-          <TaxesAmount>{convertToMoney(cartTaxes)}</TaxesAmount>
+          <TaxesAmount>{this.convertToMoney(cartTaxes)}</TaxesAmount>
         </TaxesContainer>
         <TotalContainer>
-          <Total>Cart Total</Total>
-          <TotalAmount>{convertToMoney(cartTotal)}</TotalAmount>
+          <span style={{color: 'black'}}>Cart Total</span>
+          <TotalAmount>{this.convertToMoney(cartTotal)}</TotalAmount>
         </TotalContainer>
         <CheckoutContainer>
           <Button

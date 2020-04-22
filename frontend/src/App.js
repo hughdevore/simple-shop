@@ -23,6 +23,7 @@ const Price = styled.span`
   font-size: 1.25em;
   line-height: 2.25em;
 `;
+
 /**
  * App
  * 
@@ -35,7 +36,6 @@ class App extends Component {
     cartTaxes: 0,
     cartTotal: 0,
     productList: [],
-    visible: false,
   };
 
   /**
@@ -85,7 +85,7 @@ class App extends Component {
    * Convert strings formatted as MONEY to number.
    *
    * @param integer input The int to convert.
-   * @return Integer
+   * @return string
    */
   convertToMoney = (input) => {
     const formatter = new Intl.NumberFormat("en-US", {
@@ -96,6 +96,11 @@ class App extends Component {
     return formatter.format(input);
   };
 
+  /**
+   * Create a cart in the database.
+   * 
+   * @return void 
+   */
   createCart = async () => {
     const response = await axios.post("http://localhost:3100/carts");
     const body = response.data;
@@ -109,6 +114,11 @@ class App extends Component {
     localStorage.setItem("cartId", body[0].id);
   };
 
+  /**
+   * Get the list of items in the cart and update state.
+   * 
+   * @return void
+   */
   getCartList = async () => {
     let cartList = [];
     const cartId = localStorage.getItem("cartId");
@@ -148,17 +158,12 @@ class App extends Component {
     }
   };
 
-  getProductList = async () => {
-    const response = await axios.get("http://localhost:3100/products");
-    const body = response.data;
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-    this.setState({
-      productList: body,
-    });
-  };
-
+  /**
+   * Get a product using its id.
+   * 
+   * @param integer id The id of the product.
+   * @return object body
+   */
   getProductById = async (id) => {
     const response = await axios.get(`http://localhost:3100/products/${id}`);
     const body = response.data;
@@ -168,9 +173,20 @@ class App extends Component {
     return body;
   };
 
-  handleClose = (e) => {
+
+  /**
+   * Get all of the products and update state.
+   * 
+   * @return void
+   */
+  getProductList = async () => {
+    const response = await axios.get("http://localhost:3100/products");
+    const body = response.data;
+    if (response.status !== 200) {
+      throw Error(body.message);
+    }
     this.setState({
-      visible: false,
+      productList: body,
     });
   };
 
@@ -273,7 +289,6 @@ class App extends Component {
               cartTotal={cartTotal}
               createCart={this.createCart}
               getCartList={this.getCartList}
-              convertToMoney={this.convertToMoney}
               updateCartQuantity={this.updateCartQuantity}
             />
           </Sider>
