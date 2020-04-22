@@ -62,6 +62,22 @@ const createCart = (request, response) => {
 };
 
 /**
+ * Get all of the carts from the database.
+ * 
+ * @param object request The incoming request from the API.
+ * @param object response The response to send back.
+ * @return void
+ */
+const getCarts = (request, response) => {
+  pool.query('SELECT * FROM carts ORDER BY id DESC', (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).json(results.rows);
+  });
+};
+
+/**
  * Get all of the items from the cart with the requested id.
  * 
  * @param object request The incoming request from the API.
@@ -91,6 +107,7 @@ const getItemsInCart = (request, response) => {
  */
 const addItemsToCart = (request, response) => {
   const cart_id = parseInt(request.params.id);
+  console.log(cart_id)
   const {product_id, quantity = 1} = request.body.data;
   const newItems = [];
   for(let i = 0; i < quantity; i++) {
@@ -137,6 +154,7 @@ module.exports = {
   getProducts,
   getProductById,
   createCart,
+  getCarts,
   getItemsInCart,
   addItemsToCart,
   removeItemsFromCart,

@@ -22,13 +22,13 @@ const product = {
 
 beforeAll(async () => {
   await pool.query(
-    'CREATE TABLE carts( id SERIAL PRIMARY KEY, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP );'
-  );
-  await pool.query(
     'CREATE TABLE products( id SERIAL PRIMARY KEY, name TEXT, description TEXT, price MONEY, image_url TEXT, quantity INT );'
   );
   await pool.query(
-    'CREATE TABLE carts_products( id SERIAL PRIMARY KEY, product_id INT REFERENCES products(id) ON DELETE CASCADE, cart_id INT REFERENCES carts(id) ON DELETE CASCADE );'
+    'CREATE TABLE carts( id SERIAL PRIMARY KEY, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP );'
+  );
+  await pool.query(
+    'CREATE TABLE carts_products( id SERIAL PRIMARY KEY, product_id INT REFERENCES products(id), cart_id INT REFERENCES carts(id) );'
   );
 });
 
@@ -129,46 +129,13 @@ describe('POST request to /carts', () => {
   });
 });
 
-describe('GET request to /carts/:id', () => {
-  test('It should respond with the cart and its items', async (done) => {
-    // Seed with cart data
-    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
-    supertest(app)
-      .get('/carts/2')
-      .expect(200, (error, response) => {
-        expect(response.body).toEqual([
-          {
-            id: 2
-          }
-        ]);
-        done();
-      });
-  });
-});
-
-describe('DELETE request to /carts/:id', () => {
-  test('It should respond with the id of the deleted cart', async (done) => {
-    // Seed with cart data
-    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
-    supertest(app)
-      .delete('/carts/2')
-      .expect(200, (error, response) => {
-        expect(response.body).toEqual([
-          {
-            id: 2
-          }
-        ]);
-        done();
-      });
-  });
-});
-
 describe('POST request to /carts/:id', () => {
   test('It should respond with the added cart item', async (done) => {
     // Seed with cart data
-    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
+    const cart = await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT) RETURNING id;');
+    console.log(cart.rows[0].id)
     supertest(app)
-      .post('/carts/3')
+      .post(`/carts/${cart.rows[0].id}`)
       .send({
         product_id: 9
       })
@@ -176,7 +143,7 @@ describe('POST request to /carts/:id', () => {
         expect(response.body).toEqual([
           {
             id: 1,
-            cart_id: 3,
+            cart_id: cart.rows[0].id,
             product_id: 9,
           }
         ]);
