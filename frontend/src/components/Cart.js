@@ -1,15 +1,8 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Button, Empty, List, Modal, Select } from "antd";
-
-const { Option } = Select;
-
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
-};
+import { Button, Empty, InputNumber, List, Modal, notification } from "antd";
 
 const TaxesAmount = styled.span`
   color: black;
@@ -27,11 +20,27 @@ const TotalAmount = styled.span`
   margin-right: 3.25em;
 `;
 
-const CartHeader = styled.h1`
+const HeaderContainer = styled.div`
   border-bottom: 1px solid rgb(82, 82, 82);
-  font-size: 2em;
+`;
+
+const CartHeader = styled.h1`
+  font-size: 2.5em;
   text-align: left;
   color: black;
+  display: inline-block;
+  margin-bottom: 0;
+`;
+
+const CartHeaderCount = styled.span`
+  float: right;
+  font-size: 1em;
+  padding-top: 2em;
+`;
+
+const CheckoutContainer = styled.div`
+  padding: 3em;
+  text-align: right; 
 `;
 
 const Price = styled.span`
@@ -62,65 +71,146 @@ const TotalContainer = styled.span`
   border-bottom: 1px solid rgb(82, 82, 82);
 `;
 
-const formatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
-
+/**
+ * Cart
+ * 
+ * The Cart component contains the cart list, product quantities and 
+ * their functionality for updating/removing.
+ */
 class Cart extends Component {
   state = {
-    cartSubtotal: 100,
-    cartTaxes: 0,
-    cartTotal: 0,
     visible: false,
+    productId: 0,
   };
 
-  handleChange = (value) => {
-    console.log(`selected ${value}`);
-
-    // TODO: Update cart quantity on change
+  /**
+   * Get the product ID from the label in the quantity select field.
+   *
+   * @param string label The label from the select field.
+   * @return integer
+   */
+  parseProductIdFromLabel = (label) => {
+    const regex = /\d+(?=-)/gm;
+    let match = regex.exec(label);
+    return parseInt(match[0]);
   };
 
-  hideModal = () => {
-    const cartId = localStorage.getItem("cartId");
-    console.log(cartId);
-    this.setState({
-      visible: false,
-    });
-    if (!cartId || cartId === 0) {
-      this.props.createCart();
+  /**
+   * Update the current cart's product quantities over REST.
+   *
+   * @param int value The int value from the quantity selector.
+   * @return void
+   */
+  updateCartQuantity = async (value, id) => {
+    // Don't update the value if it's an empty input.
+    if (value === '') {
+      return;
+    }
+    const { cartList, cartId } = this.props;
+    if (cartList) {
+      const productId = parseInt(id);
+      const cartProduct = cartList.find((item) => {
+        return parseInt(item.id) === productId;
+      });
+
+      if (cartProduct) {
+        if (value > cartProduct.quantity) {
+          const quantityToAdd = (value - cartProduct.quantity);
+          // Make a request to add the extra quantity of this product.
+          const response = await axios.post(
+            `http://localhost:3100/carts/${cartId}`,
+            { data: { product_id: productId, quantity: quantityToAdd } }
+          );
+          const body = response.data;
+          console.log(response);
+          if (response.status !== 201) {
+            notification.error({
+              message: "Error, your cart item quantity could not be updated.",
+              description: body.message,
+            });
+          } else {
+            notification.success({
+              message: "Your cart has been updated!",
+              description: body.message,
+            });
+            this.props.getCartList();
+          }
+        }
+        
+        if (value < cartProduct.quantity) {
+          let quantityRemaining = 0;
+          // Get the quantity remaining.
+          if(value !== 0) {
+            const reducedBy = (value - cartProduct.quantity);
+            quantityRemaining = cartProduct.quantity + reducedBy;
+          }
+
+          // Make request to delete the extra quantity of this product.
+          const response = await axios.delete(
+            `http://localhost:3100/carts/${cartId}`,
+            { data: { product_id: productId, quantity: quantityRemaining } }
+          );
+          const body = response.data;
+          if (response.status !== 200) {
+            notification.error({
+              message: "Error, your cart item quantity could not be updated.",
+              description: body.message,
+            });
+          } else {
+            notification.success({
+              message: "Your cart has been updated!",
+              description: body.message,
+            });
+            this.props.getCartList();
+          }
+        }
+      }
     }
   };
 
-  cartQuantity = (quantity) => {
-    return (
-      <Select defaultValue={quantity} onChange={this.handleChange}>
-        <Option value="1">1</Option>
-        <Option value="2">2</Option>
-        <Option value="3">3</Option>
-      </Select>
-    );
+  /**
+   * Hide the empty cart modal upon closing.
+   * 
+   * @return void
+   */
+  hideModal = () => {
+    const cartId = localStorage.getItem("cartId");
+    if (!cartId || cartId === 0) {
+      this.props.createCart();
+    } else {
+      const cartExists = axios.get(`http://localhost:3100/carts/${cartId}`);
+      console.log(cartExists);
+    }
+
+    this.setState({
+      visible: false,
+    });
   };
 
   componentDidMount() {
     const cartId = localStorage.getItem("cartId");
-    if (cartId === 0) {
+    const { getCartList } = this.props;
+    if (cartId === 0 || cartId === null) {
       this.setState({
         visible: true,
       });
     } else {
-      this.props.getCartList();
+      getCartList();
     }
   }
 
   render() {
-    const { cartTaxes, cartTotal, visible } = this.state;
-    const { cartList, getCartList } = this.props;
-    console.log(cartList);
+    const { visible } = this.state;
+    const { cartTaxes, cartTotal, cartList, convertToMoney } = this.props;
+
     return (
       <div>
-        <CartHeader>Cart Summary</CartHeader>
+        <HeaderContainer>
+          <CartHeader>Cart Summary</CartHeader>
+          <CartHeaderCount>
+            {`${cartList.length} products in your cart`}
+          </CartHeaderCount>
+        </HeaderContainer>
         <List
           locale={{
             emptyText: (
@@ -140,12 +230,18 @@ class Cart extends Component {
           itemLayout="horizontal"
           dataSource={cartList}
           renderItem={(item) => {
-            const { name, price, quantity } = item;
+            const { id, name, price, quantity } = item;
             return (
               <List.Item
                 actions={[
                   <Price>{price}</Price>,
-                  this.cartQuantity(quantity),
+                  <InputNumber
+                    max={3}
+                    key={id}
+                    defaultValue={quantity}
+                    onChange={(value) => this.updateCartQuantity(value, id)}
+                    size="small"
+                  />
                 ]}
               >
                 <List.Item.Meta title={name} />
@@ -155,26 +251,21 @@ class Cart extends Component {
         />
         <TaxesContainer>
           <span>Taxes</span>
-          <TaxesAmount>{formatter.format(cartTaxes)}</TaxesAmount>
+          <TaxesAmount>{convertToMoney(cartTaxes)}</TaxesAmount>
         </TaxesContainer>
         <TotalContainer>
           <Total>Cart Total</Total>
-          <TotalAmount>{formatter.format(cartTotal)}</TotalAmount>
+          <TotalAmount>{convertToMoney(cartTotal)}</TotalAmount>
         </TotalContainer>
-        <div style={{ padding: "3em", textAlign: "center" }}>
+        <CheckoutContainer>
           <Button
             size="large"
             type="primary"
-            style={{
-              backgroundColor: "green",
-              fontSize: "2em",
-              height: "2.25em",
-              border: "none",
-            }}
+            className="checkout-button"
           >
             Checkout
           </Button>
-        </div>
+        </CheckoutContainer>
         <Modal
           title="Welcome to Simple Shop"
           visible={visible}

@@ -14,8 +14,8 @@ test('GET /', done => {
             getProductById: 'GET request to /products/:id will return that product.',
             createCart: 'POST request to /carts will create a cart.',
             deleteCart: 'DELETE request to /carts/:id will delete a cart.',
-            addItemToCart: 'POST request to /carts/:id and passing the product_id will add a product to the cart.',
-            removeItemFromCart:
+            addItemsToCart: 'POST request to /carts/:id and passing the product_id will add a product to the cart.',
+            removeItemsFromCart:
               'DELETE request to /cart/:id and passing the product_id will delete that product from the cart.'
           }
         }

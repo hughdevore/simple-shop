@@ -129,6 +129,23 @@ describe('POST request to /carts', () => {
   });
 });
 
+describe('GET request to /carts/:id', () => {
+  test('It should respond with the cart and its items', async (done) => {
+    // Seed with cart data
+    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
+    supertest(app)
+      .get('/carts/2')
+      .expect(200, (error, response) => {
+        expect(response.body).toEqual([
+          {
+            id: 2
+          }
+        ]);
+        done();
+      });
+  });
+});
+
 describe('DELETE request to /carts/:id', () => {
   test('It should respond with the id of the deleted cart', async (done) => {
     // Seed with cart data

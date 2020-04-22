@@ -23,9 +23,8 @@ app.get('/', (request, response) => {
         getProductById: 'GET request to /products/:id will return that product.',
         getItemsInCart: 'GET request ti the /carts/:id will return all products in the cart',
         createCart: 'POST request to /carts will create a cart.',
-        deleteCart: 'DELETE request to /carts/:id will delete a cart.',
-        addItemToCart: 'POST request to /carts/:id and passing the product_id will add a product to the cart.',
-        removeItemFromCart:
+        addItemsToCart: 'POST request to /carts/:id and passing the product_id will add a product to the cart.',
+        removeItemsFromCart:
           'DELETE request to /cart/:id and passing the product_id will delete that product from the cart.'
       }
     }
@@ -35,9 +34,8 @@ app.get('/', (request, response) => {
 app.get('/products', db.getProducts);
 app.get('/products/:id', db.getProductById);
 app.post('/carts', db.createCart);
-app.delete('/carts/:id', db.deleteCart);
 app.get('/carts/:id', db.getItemsInCart);
-app.post('/carts/:id', db.addItemToCart);
-app.delete('/carts/:id', db.removeItemFromCart);
+app.post('/carts/:id', db.addItemsToCart);
+app.delete('/carts/:id', db.removeItemsFromCart);
 
 module.exports = app;

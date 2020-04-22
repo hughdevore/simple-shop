@@ -13,24 +13,6 @@
   background-color: white;
 }
 
-.shop-header {
-  height: 6em;
-}
-
-.art-manager-list-container {
-  padding:1.5em 2em;
-  background-color: white;
-  height: 82vh;
-}
-
-.ant-list-item-action li {
-  cursor: default;
-}
-
-.ant-modal-content {
-  box-shadow: 0 0 5px rgb(171, 177, 186);
-}
-
 .ant-drawer-header {
   height: 6em;
   padding: 2em;
@@ -44,6 +26,42 @@
   background-color: #001529;
   text-align: right;
   padding-top: 1.25em;
+}
+
+.ant-input-number.ant-input-number-sm {
+  width: 50px;
+  height: 26px;
+}
+
+.ant-list-item-action li {
+  cursor: default;
+}
+
+.ant-modal-content {
+  box-shadow: 0 0 5px rgb(171, 177, 186);
+}
+
+.checkout-button {
+  font-size: 1.5em;
+  height: 2em;
+  padding: 0px 15px;
+  background-color: #52c41a;
+  border: none;
+}
+
+.checkout-button:hover {
+  background-color: #40a9ff !important;
+}
+
+.shop-header {
+  height: 6em;
+}
+
+
+.shop-list-containe {
+  padding:1.5em 2em;
+  background-color: white;
+  height: 82vh;
 }
 
 .github-logo {
