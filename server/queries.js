@@ -107,10 +107,9 @@ const getItemsInCart = (request, response) => {
  */
 const addItemsToCart = (request, response) => {
   const cart_id = parseInt(request.params.id);
-  console.log(cart_id)
   const {product_id, quantity = 1} = request.body.data;
-  const newItems = [];
-  for(let i = 0; i < quantity; i++) {
+  let newItems = [];
+  if(quantity === 1) {
     pool.query(
       'INSERT INTO carts_products(product_id, cart_id) VALUES ($1, $2) RETURNING *',
       [product_id, cart_id],
@@ -118,11 +117,25 @@ const addItemsToCart = (request, response) => {
         if (error) {
           throw error;
         }
-        newItems.push(results.rows);
+        response.status(201).json(results.rows);
       }
     );
+  } else {
+    for(let i = 0; i < quantity; i++) {
+      pool.query(
+        'INSERT INTO carts_products(product_id, cart_id) VALUES ($1, $2) RETURNING *',
+        [product_id, cart_id],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          console.log(results.rows)
+          newItems = [...newItems, ...results.rows];
+        }
+      );
+    }
+    response.status(201).json(newItems);
   }
-  response.status(201).json(newItems);
 };
 
 /**

@@ -133,18 +133,20 @@ describe('POST request to /carts/:id', () => {
   test('It should respond with the added cart item', async (done) => {
     // Seed with cart data
     const cart = await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT) RETURNING id;');
-    console.log(cart.rows[0].id)
+    const products = await pool.query('SELECT * FROM products ORDER BY id DESC;');
     supertest(app)
       .post(`/carts/${cart.rows[0].id}`)
       .send({
-        product_id: 9
+        data: {
+          product_id: products.rows[0].id
+        }
       })
       .expect(200, (error, response) => {
         expect(response.body).toEqual([
           {
             id: 1,
             cart_id: cart.rows[0].id,
-            product_id: 9,
+            product_id: products.rows[0].id,
           }
         ]);
         done();
@@ -155,14 +157,19 @@ describe('POST request to /carts/:id', () => {
 describe('DELETE request to /carts/:id', () => {
   test('It should respond with the deleted cart item id', async (done) => {
     // Seed with cart data
-    await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
-    await pool.query('INSERT INTO carts_products(product_id, cart_id) VALUES (11, 4)')
+    const cart = await pool.query('INSERT INTO carts(created_at) VALUES(DEFAULT);');
+    const addedProducts = await pool.query('INSERT INTO carts_products(product_id, cart_id) VALUES (10, 3) RETURNING *;')
     supertest(app)
-      .delete('/carts/4')
+      .delete('/carts/3')
+      .send({
+        product_id: 10
+      })
       .expect(200, (error, response) => {
         expect(response.body).toEqual([
           {
-            id: 4
+            id: 2,
+            product_id: 10,
+            cart_id: 3,
           }
         ]);
         done();
